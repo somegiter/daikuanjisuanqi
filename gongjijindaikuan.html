@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公积金贷款</title>
+    <link rel="canonical" href="https://tianjin.fangnews.cn/"/>
+    <meta name="description" content="天津房贷计算器2024年最新版包含有：商业贷款计算器、公积金贷款计算器、组合贷款计算器,央行最新商业贷款基准利率(LPR)。天津房贷计算器可快速计算等额本息、等额本金等各种按揭贷款，每天超过50万人查询房贷利率,计算房贷。"/>
+    <style>
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 1px; 
+            padding: 1px; 
+            background-color: #f4f4f4; 
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+        }
+       
+        input, select, button {
+            padding: 8px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            border: 1px solid #ddd; 
+            width: 100%; 
+            box-sizing: border-box; 
+        }
+        
+        button {
+            background-color: #046bd2; 
+            color: white; 
+            cursor: pointer; 
+        }
+        button:hover {
+            background-color: #045cb4; 
+        }
+        
+        table {
+            width: 100%; 
+            margin-top: 20px; 
+            border-collapse: collapse; 
+            font-size: 12px; 
+        }
+        
+        th, td {
+            text-align: center; 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+        }
+        th {
+            background-color: #f2f2f2; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>公积金贷款</h2>
+        <label for="amount">贷款金额(万元):</label>
+        <input type="number" id="amount" value="100"><br>
+        <label for="years">贷款年限(年):</label>
+        <input type="number" id="years" value="20"><br>
+        <label for="rate">年利率(%):</label>
+        <input type="number" id="rate" value="3.1" step="0.01"><br>
+        <label for="method">还款方式:</label>
+        <select id="method">
+            <option value="equalLoan">等额本息</option>
+            <option value="equalPrincipal">等额本金</option>
+        </select><br>
+        <button onclick="calculate()">计算</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function calculate() {
+            var amount = document.getElementById("amount").value * 10000; 
+            var years = document.getElementById("years").value; 
+            var rate = document.getElementById("rate").value / 100; 
+            var method = document.getElementById("method").value; 
+            var monthlyRate = rate / 12; 
+            var months = years * 12; 
+            var result = document.getElementById("result"); 
+            result.innerHTML = ""; 
+
+            var totalInterest = 0; 
+            var totalPayment = 0; 
+            var details = "<table><tr><th>期数</th><th>每期还款</th><th>利息</th><th>本金</th><th>剩余本金</th></tr>"; // 初始化表格，用于展示每月还款详情
+
+            if (method === "equalLoan") { 
+                var monthlyPayment = (amount * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+                for (var i = 1; i <= months; i++) {
+                    var interest = amount * monthlyRate; 
+                    var principal = monthlyPayment - interest;
+                    amount -= principal; 
+                    totalInterest += interest; 
+                    details += "<tr><td>" + i + "</td><td>" + monthlyPayment.toFixed(2) + "</td><td>" + interest.toFixed(2) + "</td><td>" + principal.toFixed(2) + "</td><td>" + amount.toFixed(2) + "</td></tr>";
+                }
+                totalPayment = monthlyPayment * months;
+            } else if (method === "equalPrincipal") { 
+                var monthlyPrincipal = amount / months; 
+                for (var i = 1; i <= months; i++) {
+                    var interest = amount * monthlyRate; 
+                    var monthlyPayment = monthlyPrincipal + interest; 
+                    amount -= monthlyPrincipal; 
+                    totalInterest += interest; 
+                    details += "<tr><td>" + i + "</td><td>" + monthlyPayment.toFixed(2) + "</td><td>" + interest.toFixed(2) + "</td><td>" + monthlyPrincipal.toFixed(2) + "</td><td>" + amount.toFixed(2) + "</td></tr>";
+                }
+                totalPayment = monthlyPrincipal * months + totalInterest;
+            }
+
+            details += "</table>";
+            result.innerHTML += "贷款总支付利息: " + totalInterest.toFixed(2) + "元<br>";
+            result.innerHTML += "贷款还款总额: " + totalPayment.toFixed(2) + "元<br>";
+            result.innerHTML += "<button id='toggleDetailsBtn' onclick='toggleDetails()'>查看还款明细</button>";
+            result.innerHTML += "<div id='details' style='display:none;'>" + details + "</div>";
+        }
+
+        function toggleDetails() {
+            var details = document.getElementById("details");
+            if (details.style.display === "none") {
+                details.style.display = "block";
+                document.getElementById("toggleDetailsBtn").textContent = "隐藏还款明细";
+            } else {
+                details.style.display = "none";
+                document.getElementById("toggleDetailsBtn").textContent = "查看还款明细";
+            }
+        }
+    </script>
+</body>
+</html>

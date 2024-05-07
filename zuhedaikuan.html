@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>组合贷款计算器</title>
+    <link rel="canonical" href="https://tianjin.fangnews.cn/"/>
+    <meta name="description" content="天津房贷计算器2024年最新版包含有：商业贷款计算器、公积金贷款计算器、组合贷款计算器,央行最新商业贷款基准利率(LPR)。天津房贷计算器可快速计算等额本息、等额本金等各种按揭贷款，每天超过50万人查询房贷利率,计算房贷。"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 1px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            box-sizing: border-box; /* Added for consistency */
+        }
+        button {
+            background-color: #046bd2;
+            color: white;
+            padding: 8px ;
+            width: 100%;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #045cb4;
+        }
+        #results p {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+    </style>
+    <script>
+        function calculateLoan() {
+            // 获取输入值
+            var commercialLoanAmount = parseFloat(document.getElementById("commercialLoanAmount").value) * 10000; // 商业贷款金额
+            var commercialLoanYears = parseInt(document.getElementById("commercialLoanYears").value); // 商业贷款年限
+            var commercialInterestRate = parseFloat(document.getElementById("commercialInterestRate").value) / 100; // 商业贷款年利率
+
+            var fundLoanAmount = parseFloat(document.getElementById("fundLoanAmount").value) * 10000; // 公积金贷款金额
+            var fundLoanYears = parseInt(document.getElementById("fundLoanYears").value); // 公积金贷款年限
+            var fundInterestRate = parseFloat(document.getElementById("fundInterestRate").value) / 100; // 公积金贷款年利率
+
+            var totalLoanMonths = commercialLoanYears * 12; // 总贷款月数
+
+            // 等额本息计算
+            var monthlyCommercialRate = commercialInterestRate / 12;
+            var monthlyFundRate = fundInterestRate / 12;
+            var commercialMonthlyPayment = (commercialLoanAmount * monthlyCommercialRate * Math.pow(1 + monthlyCommercialRate, totalLoanMonths)) / (Math.pow(1 + monthlyCommercialRate, totalLoanMonths) - 1);
+            var fundMonthlyPayment = (fundLoanAmount * monthlyFundRate * Math.pow(1 + monthlyFundRate, totalLoanMonths)) / (Math.pow(1 + monthlyFundRate, totalLoanMonths) - 1);
+            var totalMonthlyPayment = commercialMonthlyPayment + fundMonthlyPayment;
+            var totalRepaymentEI = totalMonthlyPayment * totalLoanMonths;
+            var totalInterestEI = totalRepaymentEI - (commercialLoanAmount + fundLoanAmount);
+
+            // 等额本金计算
+            var commercialPrincipalMonthly = commercialLoanAmount / totalLoanMonths;
+            var fundPrincipalMonthly = fundLoanAmount / totalLoanMonths;
+            var totalInterestEP = 0;
+            for (var i = 1; i <= totalLoanMonths; i++) {
+                totalInterestEP += (commercialLoanAmount - commercialPrincipalMonthly * (i - 1)) * monthlyCommercialRate;
+                totalInterestEP += (fundLoanAmount - fundPrincipalMonthly * (i - 1)) * monthlyFundRate; 
+            }
+            var totalRepaymentEP = commercialLoanAmount + fundLoanAmount + totalInterestEP;
+
+            // 显示结果
+            document.getElementById("totalInterestEI").innerText = "等额本息总支付利息：" + totalInterestEI.toFixed(2) + "元";
+            document.getElementById("totalRepaymentEI").innerText = "等额本息还款总额：" + totalRepaymentEI.toFixed(2) + "元";
+            document.getElementById("totalInterestEP").innerText = "等额本金总支付利息：" + totalInterestEP.toFixed(2) + "元";
+            document.getElementById("totalRepaymentEP").innerText = "等额本金还款总额：" + totalRepaymentEP.toFixed(2) + "元";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>组合贷款计算器</h2>
+        <div>
+            <h3>商业贷款</h3>
+            贷款金额(万元): <input type="number" id="commercialLoanAmount" value="100"><br>
+            贷款年限(年): <input type="number" id="commercialLoanYears" value="20"><br>
+            利率值(%): <input type="number" id="commercialInterestRate" value="3.95"><br>
+        </div>
+        <div>
+            <h3>公积金贷款</h3>
+            贷款金额(万元): <input type="number" id="fundLoanAmount" value="50"><br>
+            贷款年限(年): <input type="number" id="fundLoanYears" value="20"><br>
+            利率值(%): <input type="number" id="fundInterestRate" value="3.1"><br>
+        </div>
+        <div>
+            <button onclick="calculateLoan()">计算</button>
+        </div>
+        <div id="results">
+            <p id="totalInterestEI"></p>
+            <p id="totalRepaymentEI"></p>
+            <p id="totalInterestEP"></p>
+            <p id="totalRepaymentEP"></p>
+        </div>
+    </div>
+</body>
+</html>

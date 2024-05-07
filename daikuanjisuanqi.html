@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房贷计算器</title>
+    <link rel="canonical" href="https://tianjin.fangnews.cn/"/>
+    <meta name="description" content="天津房贷计算器2024年最新版包含有：商业贷款计算器、公积金贷款计算器、组合贷款计算器,央行最新商业贷款基准利率(LPR)。天津房贷计算器可快速计算等额本息、等额本金等各种按揭贷款，每天超过50万人查询房贷利率,计算房贷。"/>
+    <style>
+        /* 页面基本样式设置 */
+        body {
+            font-family: Arial, sans-serif; /* 使用Arial字体，如果不可用则回退到无衬线字体 */
+            margin: 1px; /* 页面四周留出空白 */
+            padding: 1px; /* 页面内容与边框之间留出空白 */
+            background-color: #f4f4f4; /* 设置页面背景颜色为浅灰色 */
+        }
+        /* 容器样式，用于包裹计算器的所有元素 */
+        .container {
+            max-width: 1200px; /* 容器的最大宽度为1200px */
+            margin: auto; /* 上下保持原有间距，左右自动调整以居中显示 */
+            background: white; /* 容器背景色为白色 */
+            padding: 20px; /* 容器内部元素与边框之间留出20px的空白 */
+            border-radius: 8px; /* 容器边角的圆滑程度为8px */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 容器周围添加浅灰色的阴影效果 */
+        }
+        /* 输入框、选择框和按钮的统一样式 */
+        input, select, button {
+            padding: 8px; /* 元素内部填充10px */
+            margin: 10px 0; /* 元素外部上下间距10px，左右不变 */
+            border-radius: 5px; /* 元素边角的圆滑程度为5px */
+            border: 1px solid #ddd; /* 元素边框为1px的实线，颜色为浅灰色 */
+            width: 100%; /* 元素宽度占满父容器宽度 */
+            box-sizing: border-box; /* 边框和内填充的宽度也包含在元素宽度内 */
+        }
+        /* 按钮的特定样式，包括背景色和悬停效果 */
+        button {
+            background-color: #046bd2; /* 按钮背景色为蓝色 */
+            color: white; /* 按钮文字颜色为白色 */
+            cursor: pointer; /* 鼠标悬停时显示指针形状 */
+        }
+        button:hover {
+            background-color: #045cb4; /* 鼠标悬停时按钮背景色变为深蓝色 */
+        }
+        /* 表格样式，包括宽度、边框和字体大小 */
+        table {
+            width: 100%; /* 表格宽度占满父容器宽度 */
+            margin-top: 20px; /* 表格与上方元素的间距为20px */
+            border-collapse: collapse; /* 表格边框合并为单一边框 */
+            font-size: 12px; /* 表格内文字大小为12px */
+        }
+        /* 表格中的单元格和表头样式，包括对齐、填充和边框 */
+        th, td {
+            text-align: center; /* 文字居中显示 */
+            padding: 8px; /* 单元格内部填充8px */
+            border: 1px solid #ddd; /* 单元格边框为1px的实线，颜色为浅灰色 */
+        }
+        th {
+            background-color: #f2f2f2; /* 表头背景色为浅灰色，以区分表格内容 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>房贷计算器</h2>
+        <label for="amount">贷款金额(万元):</label>
+        <input type="number" id="amount" value="100"><br>
+        <label for="years">贷款年限(年):</label>
+        <input type="number" id="years" value="20"><br>
+        <label for="rate">年利率(%):</label>
+        <input type="number" id="rate" value="3.95" step="0.01"><br>
+        <label for="method">还款方式:</label>
+        <select id="method">
+            <option value="equalLoan">等额本息</option>
+            <option value="equalPrincipal">等额本金</option>
+        </select><br>
+        <button onclick="calculate()">计算</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function calculate() {
+            var amount = document.getElementById("amount").value * 10000; // 贷款金额转换为元
+            var years = document.getElementById("years").value; // 贷款年限
+            var rate = document.getElementById("rate").value / 100; // 年利率转换为小数形式
+            var method = document.getElementById("method").value; // 获取还款方式
+            var monthlyRate = rate / 12; // 计算月利率
+            var months = years * 12; // 总还款月数
+            var result = document.getElementById("result"); // 获取显示结果的元素
+            result.innerHTML = ""; // 清空之前的结果
+
+            var totalInterest = 0; // 初始化总利息
+            var totalPayment = 0; // 初始化总还款额
+            var details = "<table><tr><th>期数</th><th>每期还款</th><th>利息</th><th>本金</th><th>剩余本金</th></tr>"; // 初始化表格，用于展示每月还款详情
+
+            if (method === "equalLoan") { // 等额本息计算方式
+                var monthlyPayment = (amount * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+                for (var i = 1; i <= months; i++) {
+                    var interest = amount * monthlyRate; // 本期利息
+                    var principal = monthlyPayment - interest; // 本期本金
+                    amount -= principal; // 更新剩余本金
+                    totalInterest += interest; // 累加总利息
+                    details += "<tr><td>" + i + "</td><td>" + monthlyPayment.toFixed(2) + "</td><td>" + interest.toFixed(2) + "</td><td>" + principal.toFixed(2) + "</td><td>" + amount.toFixed(2) + "</td></tr>";
+                }
+                totalPayment = monthlyPayment * months;
+            } else if (method === "equalPrincipal") { // 等额本金计算方式
+                var monthlyPrincipal = amount / months; // 每月本金
+                for (var i = 1; i <= months; i++) {
+                    var interest = amount * monthlyRate; // 本期利息
+                    var monthlyPayment = monthlyPrincipal + interest; // 本月还款额
+                    amount -= monthlyPrincipal; // 更新剩余本金
+                    totalInterest += interest; // 累加总利息
+                    details += "<tr><td>" + i + "</td><td>" + monthlyPayment.toFixed(2) + "</td><td>" + interest.toFixed(2) + "</td><td>" + monthlyPrincipal.toFixed(2) + "</td><td>" + amount.toFixed(2) + "</td></tr>";
+                }
+                totalPayment = monthlyPrincipal * months + totalInterest;
+            }
+
+            details += "</table>";
+            result.innerHTML += "贷款总支付利息: " + totalInterest.toFixed(2) + "元<br>";
+            result.innerHTML += "贷款还款总额: " + totalPayment.toFixed(2) + "元<br>";
+            result.innerHTML += "<button id='toggleDetailsBtn' onclick='toggleDetails()'>查看还款明细</button>";
+            result.innerHTML += "<div id='details' style='display:none;'>" + details + "</div>";
+        }
+
+        function toggleDetails() {
+            var details = document.getElementById("details");
+            if (details.style.display === "none") {
+                details.style.display = "block";
+                document.getElementById("toggleDetailsBtn").textContent = "隐藏还款明细";
+            } else {
+                details.style.display = "none";
+                document.getElementById("toggleDetailsBtn").textContent = "查看还款明细";
+            }
+        }
+    </script>
+</body>
+</html>
